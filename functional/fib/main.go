@@ -4,16 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"jaluik.com/learn/functional/fib/fib"
 	"strings"
 )
-
-func fibonacci() intGen {
-	a, b := 0, 1
-	return func() int {
-		a, b = b, a+b
-		return a
-	}
-}
 
 type intGen func() int
 
@@ -35,7 +28,7 @@ func printFileContents(reader io.Reader) {
 }
 
 func main() {
-	f := fibonacci()
+	f := fib.Fibonacci()
 	printFileContents(f)
 
 }
