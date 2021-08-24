@@ -4,10 +4,26 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
+const prefix = "/list/"
+
+type userError string
+
+func (err userError) Error() string {
+	return err.Message()
+}
+
+func (err userError) Message() string {
+	return string(err)
+}
+
 func HandleFileList(writer http.ResponseWriter, request *http.Request) error {
-	path := request.URL.Path[len("/list/"):]
+	if strings.Index(request.URL.Path, prefix) != 0 {
+		return userError("path muse start with" + prefix)
+	}
+	path := request.URL.Path[len(prefix):]
 	file, err := os.Open(path)
 	if err != nil {
 		return err

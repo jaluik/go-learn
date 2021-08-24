@@ -2,6 +2,7 @@ package main
 
 import (
 	"jaluik.com/learn/errorhandling/filelistingserver/filelisting"
+	"log"
 	"net/http"
 	"os"
 )
@@ -12,6 +13,11 @@ func errWrapper(handler appHandler) func(writer http.ResponseWriter, request *ht
 	return func(writer http.ResponseWriter, request *http.Request) {
 		err := handler(writer, request)
 		if err != nil {
+			log.Printf("Error occurred handling request: %s", err.Error())
+			if userErr, ok := err.(userError); ok {
+				http.Error(writer, userErr.Message(), http.StatusBadRequest)
+				return
+			}
 			code := http.StatusOK
 			switch {
 			case os.IsNotExist(err):
@@ -28,8 +34,13 @@ func errWrapper(handler appHandler) func(writer http.ResponseWriter, request *ht
 
 }
 
+type userError interface {
+	error
+	Message() string
+}
+
 func main() {
-	http.HandleFunc("/list/", errWrapper(filelisting.HandleFileList))
+	http.HandleFunc("/", errWrapper(filelisting.HandleFileList))
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic(err)
