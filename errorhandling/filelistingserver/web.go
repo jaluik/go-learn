@@ -11,7 +11,14 @@ type appHandler func(writer http.ResponseWriter, request *http.Request) error
 
 func errWrapper(handler appHandler) func(writer http.ResponseWriter, request *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		defer func() {
+			if r := recover(); r != nil {
+				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+		}()
+
 		err := handler(writer, request)
+
 		if err != nil {
 			log.Printf("Error occurred handling request: %s", err.Error())
 			if userErr, ok := err.(userError); ok {
