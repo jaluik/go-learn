@@ -4,6 +4,7 @@ import (
 	"jaluik.com/learn/errorhandling/filelistingserver/filelisting"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 )
 
